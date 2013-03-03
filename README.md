@@ -25,3 +25,9 @@ you'll notice the built library -- libptp++.so.
 For convenience, I've also added an install.sh which will copy the library to
 /usr/lib, and all headers to /usr/include/libptp++/ .  In your project:
 `#include <libptp++/libptp++.hpp>` to use the library.
+
+License
+=======
+
+Although not noted anywhere in the source, I am releasing this library under
+the LGPLv3 license.
