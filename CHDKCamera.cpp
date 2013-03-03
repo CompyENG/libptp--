@@ -8,8 +8,7 @@
  * functions that make communicating with CHDK simple.
  */
  
-#include <cstdlib>
-#include <cstring>
+#include <algorithm>
 #include <fstream>
 // Needed for usleep() in script wait
 #include <unistd.h>
@@ -59,10 +58,10 @@ float CHDKCamera::get_chdk_version(void) {
     uint32_t major = 0, minor = 0;
     payload = out_resp.get_payload(&payload_size);
     if(payload_size >= 8) { // Need at least 8 bytes in the payload
-        memcpy(&major, payload, 4);    // Copy first four bytes into major
-        memcpy(&minor, payload+4, 4);    // Copy next four bytes into minor
+		std::copy(payload, payload + 4, &major);        // Copy first four bytes into major
+		std::copy(payload + 4, payload + 8, &minor);    // Copy next four bytes into minor
     }
-    free(payload);
+    delete[] payload;
     
     out = major + minor/10.0;   // This assumes that the minor version is one digit long
     return out;
@@ -113,13 +112,13 @@ uint32_t CHDKCamera::execute_lua(std::string script, uint32_t * script_error, bo
         this->_wait_for_script_return(5);
     } else {
         if(payload_size >= 8) { // Need at least 8 bytes in the payload
-            memcpy(&out, payload, 4);
+			std::copy(payload, payload + 4, &out);
             if(script_error != NULL) {
-                memcpy(script_error, payload+4, 4);
+				std::copy(payload + 4, payload + 8, script_error);
             }
         }
     }
-    free(payload);
+    delete[] payload;
     
     return out;
 }
@@ -167,9 +166,9 @@ uint32_t CHDKCamera::write_script_message(std::string message, uint32_t script_i
     payload = out_resp.get_payload(&payload_size);
     
     if(payload_size >= 4) { // Need four bytes of uint32_t response
-        memcpy(&out, payload, 4);
+		std::copy(payload, payload + 4, &out);
     }
-    free(payload);
+    delete[] payload;
     
     return out;
 }
@@ -205,7 +204,7 @@ void CHDKCamera::get_live_view_data(LVData * data_out, bool liveview, bool overl
     
     data_out->read(payload, payload_size);    // The LVData class will completely handle the LV data
     
-    free(payload);
+    delete[] payload;
 }
 
 /**
@@ -279,17 +278,18 @@ uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, std::string loc
     
     name_length = remote_filename.length();
     
-    std::ifstream stream_local(local_filename, std::ios::in | std::ios::binary | std::ios::ate);
+	std::ifstream stream_local(local_filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
     // Open file for reading, binary type of file, place pointer at end of file
     
     file_size = stream_local.tellg(); // Retrives the position of the input stream
     // Since we asked to open the file at the end, this is the length of the file
     stream_local.seekg(0, std::ios::beg);
     
-    out = (uint8_t *)malloc(4 + name_length + file_size);   // Allocate memory for the packed file
+	out = new uint8_t[4 + name_length + file_size];   // Allocate memory for the packed file
     
-    memcpy(out, &file_size, 4); // Copy four bytes of file size to output
-    memcpy(out+4, remote_filename.data(), name_length); // Copy the file name in
+	std::copy(&file_size, &file_size + 4, out); // Copy four bytes of file size to output
+	const char * r_filename = remote_filename.data();
+	std::copy(r_filename, r_filename + name_length, out + 4); // Copy the file name in
     stream_local.read((char *)(out+4+name_length), file_size);    // Copy the file contents in
     
     stream_local.close(); // Close the opened file stream
@@ -307,7 +307,7 @@ uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, std::string loc
  * @param[in] timeout (optional) The timeout for each PTP call
  * @return True on success
  */
-bool CHDKCamera::upload_file(string local_filename, string remote_filename, int timeout) {
+bool CHDKCamera::upload_file(std::string local_filename, std::string remote_filename, int timeout) {
     uint8_t * packed;
     uint32_t packed_size;
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
@@ -321,7 +321,7 @@ bool CHDKCamera::upload_file(string local_filename, string remote_filename, int 
     
     this->ptp_transaction(&cmd, &data, false, &resp, NULL);
     
-    free(packed);
+    delete[] packed;
     
     return (resp.get_param_n(0) == PTP::CHDK_PTP_RC_OK);
 }
