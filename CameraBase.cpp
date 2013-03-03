@@ -9,8 +9,7 @@
  * can just talk to the camera using the correct protocol.
  */
  
-#include <cstdlib>
-#include <cstring>
+#include <algorithm>
 #include <stdint.h>
 
 #include "libptp++.hpp"
@@ -140,7 +139,7 @@ int CameraBase::_bulk_read(unsigned char * data_out, int size, int * transferred
 int CameraBase::send_ptp_message(PTPContainer * cmd, int timeout) {
     unsigned char * packed = cmd->pack();
     int ret = this->_bulk_write(packed, cmd->get_length(), timeout);
-    free(packed);
+    delete[] packed;
     
     return ret;
 }
@@ -162,9 +161,9 @@ int CameraBase::send_ptp_message(PTPContainer * cmd, int timeout) {
  */
 void CameraBase::recv_ptp_message(PTPContainer *out, int timeout) {
     // Determine size we need to read
-    unsigned char buffer[512];
+	unsigned char * buffer = new unsigned char[512];
     int read = 0;
-    this->_bulk_read((unsigned char *)buffer, 512, &read, timeout); // TODO: Error checking on response
+    this->_bulk_read(buffer, 512, &read, timeout); // TODO: Error checking on response
     uint32_t size = 0;
     if(read < 4) {
         // If we actually read less than four bytes, we can't copy four bytes out of the buffer.
@@ -172,14 +171,14 @@ void CameraBase::recv_ptp_message(PTPContainer *out, int timeout) {
         throw PTP::ERR_CANNOT_RECV;
         return;
     }
-    memcpy(&size, buffer, 4);   // The first four bytes of the buffer are the size
+	std::copy(buffer, buffer + 4, &size);   // The first four bytes of the buffer are the size
     
     // Copy our first part into the output buffer -- so we can reuse buffer
-    unsigned char * out_buf = (unsigned char *)malloc(size);
+    unsigned char * out_buf = new unsigned char[size];
     if(size < 512) {
-        memcpy(out_buf, buffer, size);
+		std::copy(buffer, buffer + size, out_buf);
     } else {
-        memcpy(out_buf, buffer, 512);
+		std::copy(buffer, buffer + 512, out_buf);
         // We've already read 512 bytes... read the rest!
         this->_bulk_read(&out_buf[512], size-512, &read, timeout);
     }
@@ -188,7 +187,7 @@ void CameraBase::recv_ptp_message(PTPContainer *out, int timeout) {
         out->unpack(out_buf);
     }
     
-    free(out_buf);
+    delete[] out_buf;
 }
 
 /**
@@ -241,14 +240,14 @@ void CameraBase::ptp_transaction(PTPContainer *cmd, PTPContainer *data, bool rec
             if(out_data != NULL) {
                 unsigned char * packed = out.pack();
                 out_data->unpack(packed);
-                free(packed);
+                delete[] packed;
             }
         } else if(out.type == PTPContainer::CONTAINER_TYPE_RESPONSE) {
             received_resp = true;
             if(out_resp != NULL) {
                 unsigned char * packed = out.pack();
                 out_resp->unpack(packed);
-                free(packed);
+                delete[] packed;
             }
         }
     }
