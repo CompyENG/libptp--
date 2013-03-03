@@ -8,8 +8,7 @@
  * LVData object, which can be manipulated to retrieve data to display an image.
  */
  
-#include <cstdlib>
-#include <cstring>
+#include <algorithm>
 #include <stdint.h>
 
 #include "LVData.hpp"
@@ -41,17 +40,17 @@ LVData::LVData(uint8_t * payload, int payload_size) {
  * @brief Frees up memory malloc()ed by \c LVData
  */
 LVData::~LVData() {
-    free(this->vp_head);
-    free(this->fb_desc);
-    free(this->payload);
+    delete this->vp_head;
+    delete this->fb_desc;
+    delete this->payload;
 }
 
 /**
  * @brief Initializes \c LVData variables by malloc()ing space of \c LVData::vp_head and \c LVData::fb_desc
  */
 void LVData::init() {
-    this->vp_head = (lv_data_header *)malloc(sizeof(lv_data_header));
-    this->fb_desc = (lv_framebuffer_desc *)malloc(sizeof(lv_framebuffer_desc));
+	this->vp_head = new lv_data_header;
+	this->fb_desc = new lv_framebuffer_desc;
     this->payload = NULL;
 }
 
@@ -67,6 +66,7 @@ void LVData::init() {
  * @param[in] payload_size The number of bytes in the payload
  * @exception LVDATA_NOT_ENOUGH_DATA If payload_size given cannot possibly be large
  *              enough to actually contain live view data.
+ * @todo The casting here is pretty bad. How can I clean this up?
  */
 void LVData::read(uint8_t * payload, int payload_size) {
     if(payload_size < (sizeof(lv_data_header) + sizeof(lv_framebuffer_desc))) {
@@ -74,17 +74,17 @@ void LVData::read(uint8_t * payload, int payload_size) {
     }
     
     if(this->payload != NULL) {
-        free(this->payload); // Free up the payload if we're overwriting this object
+        delete[] this->payload; // Free up the payload if we're overwriting this object
         this->payload = NULL;
     }
     
-    this->payload = (uint8_t *)malloc(payload_size);
+	this->payload = new uint8_t[payload_size];
     
-    memcpy(this->payload, payload, payload_size);   // Copy the payload we're reading in into OUR payload
+	std::copy(payload, payload + payload_size, this->payload);	// Copy the payload we're reading in into OUR payload
     
     // Parse the payload data into vp_head and fb_desc
-    memcpy(this->vp_head, this->payload, sizeof(lv_data_header));
-    memcpy(this->fb_desc, this->payload+this->vp_head->vp_desc_start, sizeof(lv_framebuffer_desc));
+	std::copy((lv_data_header *)this->payload, (lv_data_header *)(this->payload + sizeof(lv_data_header)), this->vp_head);
+	std::copy((lv_framebuffer_desc *)(this->payload + this->vp_head->vp_desc_start), (lv_framebuffer_desc *)(this->payload + this->vp_head->vp_desc_start + sizeof(lv_framebuffer_desc)), this->fb_desc);
 }
 
 /**
@@ -106,7 +106,7 @@ void LVData::read(PTPContainer * container) {
     
     this->read(payload, payload_size);
     
-    free(payload);
+    delete[] payload;
 }
 
 /**
@@ -131,8 +131,8 @@ uint8_t * LVData::get_rgb(int * out_size, int * out_width, int * out_height, boo
     uint8_t * vp_data;
     int vp_size;
     vp_size = (this->fb_desc->buffer_width * this->fb_desc->visible_height * 12) / 8; // 12 bpp
-    vp_data = (uint8_t *)malloc(vp_size);   // Allocate memory for YUV data
-    memcpy(vp_data, this->payload + this->fb_desc->data_start, vp_size);    // Copy YUV data into vp_data
+	vp_data = new uint8_t[vp_size];    // Allocate memory for YUV data
+	std::copy(this->payload + this->fb_desc->data_start, this->payload + this->fb_desc->data_start + vp_size, vp_data);    // Copy YUV data into vp_data
     
     int par = skip?2:1; // If skip, par = 2 ; else, par = 1
     
@@ -140,7 +140,7 @@ uint8_t * LVData::get_rgb(int * out_size, int * out_width, int * out_height, boo
     unsigned int dispsize = *out_width * (this->fb_desc->visible_height);   // Size of output
     *out_size = dispsize*3;                                             // RGB output size
     
-    uint8_t * out = (uint8_t *)malloc(*out_size);  // Allocate space for RGB output
+	uint8_t * out = new uint8_t[*out_size];  // Allocate space for RGB output
     
     uint8_t * prgb_data = out; // Pointer we can manipulate to transverse RGB output memory
     uint8_t * p_yuv = vp_data; // Pointer we can manipulate to transverse YUV input memory
@@ -161,7 +161,7 @@ uint8_t * LVData::get_rgb(int * out_size, int * out_width, int * out_height, boo
     
     *out_height = this->fb_desc->visible_height;
     
-    free(vp_data);  // We don't need this anymore
+	delete[] vp_data;;  // We don't need this anymore
     
     return out;     // It's up to the caller to free() this when done
 }
