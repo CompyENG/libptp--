@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['libptp_2b_2b_20api_20reference',['libptp++ API Reference',['../index.html',1,'']]],
+  ['lcd_5faspect_5fratio',['lcd_aspect_ratio',['../structlv__data__header.html#ab84c36e476c95ab6a814ac28c26f0183',1,'lv_data_header::lcd_aspect_ratio()'],['../struct_p_t_p_1_1lv__data__header.html#ab84c36e476c95ab6a814ac28c26f0183',1,'PTP::lv_data_header::lcd_aspect_ratio()']]],
+  ['libptp_2b_2b_2ehpp',['libptp++.hpp',['../libptp_09_09_8hpp.html',1,'']]],
+  ['libptp_5fpp_5ferrors',['LIBPTP_PP_ERRORS',['../namespace_p_t_p.html#ac37b34db2af8ccd3186d0637c0a8fdbb',1,'PTP']]],
+  ['live_5fview_2eh',['live_view.h',['../live__view_8h.html',1,'']]],
+  ['live_5fview_5fversion_5fmajor',['LIVE_VIEW_VERSION_MAJOR',['../live__view_8h.html#a14ab379945fd60d2cf92abc77dcf5faf',1,'LIVE_VIEW_VERSION_MAJOR():&#160;LVData.hpp'],['../libptp_09_09_8hpp.html#a14ab379945fd60d2cf92abc77dcf5faf',1,'LIVE_VIEW_VERSION_MAJOR():&#160;libptp++.hpp'],['../_l_v_data_8hpp.html#a14ab379945fd60d2cf92abc77dcf5faf',1,'LIVE_VIEW_VERSION_MAJOR():&#160;LVData.hpp']]],
+  ['live_5fview_5fversion_5fminor',['LIVE_VIEW_VERSION_MINOR',['../live__view_8h.html#ad1fcf5e09e99410452ca6c0a9b2da0fc',1,'LIVE_VIEW_VERSION_MINOR():&#160;LVData.hpp'],['../libptp_09_09_8hpp.html#ad1fcf5e09e99410452ca6c0a9b2da0fc',1,'LIVE_VIEW_VERSION_MINOR():&#160;libptp++.hpp'],['../_l_v_data_8hpp.html#ad1fcf5e09e99410452ca6c0a9b2da0fc',1,'LIVE_VIEW_VERSION_MINOR():&#160;LVData.hpp']]],
+  ['lv_5faspect_5f16_5f9',['LV_ASPECT_16_9',['../live__view_8h.html#aaaf801b994f0a38b77ce92c6a2a63689aa8cae32f971e07735912eb8561b33cbf',1,'LV_ASPECT_16_9():&#160;live_view.h'],['../namespace_p_t_p.html#a1e0d2717a408cdbe0e681d6bd8725d35abc12d19bef0bfda74bd326cbc75668d1',1,'PTP::LV_ASPECT_16_9()']]],
+  ['lv_5faspect_5f4_5f3',['LV_ASPECT_4_3',['../live__view_8h.html#aaaf801b994f0a38b77ce92c6a2a63689a58728ea04fc898421c3c465bfcd8f8b9',1,'LV_ASPECT_4_3():&#160;live_view.h'],['../namespace_p_t_p.html#a1e0d2717a408cdbe0e681d6bd8725d35a300f2d35e680917b52f6c8c934ef30d4',1,'PTP::LV_ASPECT_4_3()']]],
+  ['lv_5faspect_5frato',['lv_aspect_rato',['../live__view_8h.html#aaaf801b994f0a38b77ce92c6a2a63689',1,'lv_aspect_rato():&#160;live_view.h'],['../namespace_p_t_p.html#a1e0d2717a408cdbe0e681d6bd8725d35',1,'PTP::lv_aspect_rato()'],['../namespace_p_t_p.html#a1e0d2717a408cdbe0e681d6bd8725d35',1,'PTP::lv_aspect_rato()']]],
+  ['lv_5fdata_5fheader',['lv_data_header',['../struct_p_t_p_1_1lv__data__header.html',1,'PTP']]],
+  ['lv_5fdata_5fheader',['lv_data_header',['../structlv__data__header.html',1,'']]],
+  ['lv_5ffb_5fpal8',['LV_FB_PAL8',['../live__view_8h.html#a01aebb2af8b29ac38a1bfd800fcab482a600e79b8bec581b49c98c8acd54522a2',1,'LV_FB_PAL8():&#160;live_view.h'],['../namespace_p_t_p.html#a4a8f867ffcd1a1bf45c15512cd93211ea00ecb133e761ca38592f73017b7a5962',1,'PTP::LV_FB_PAL8()']]],
+  ['lv_5ffb_5ftype',['lv_fb_type',['../live__view_8h.html#a01aebb2af8b29ac38a1bfd800fcab482',1,'lv_fb_type():&#160;live_view.h'],['../namespace_p_t_p.html#a4a8f867ffcd1a1bf45c15512cd93211e',1,'PTP::lv_fb_type()'],['../namespace_p_t_p.html#a4a8f867ffcd1a1bf45c15512cd93211e',1,'PTP::lv_fb_type()']]],
+  ['lv_5ffb_5fyuv8',['LV_FB_YUV8',['../live__view_8h.html#a01aebb2af8b29ac38a1bfd800fcab482adaac5a2350053d5d540af4c26cc4255c',1,'LV_FB_YUV8():&#160;live_view.h'],['../namespace_p_t_p.html#a4a8f867ffcd1a1bf45c15512cd93211ea35c356132629b82890c720fbf90057ce',1,'PTP::LV_FB_YUV8()']]],
+  ['lv_5fframebuffer_5fdesc',['lv_framebuffer_desc',['../struct_p_t_p_1_1lv__framebuffer__desc.html',1,'PTP']]],
+  ['lv_5fframebuffer_5fdesc',['lv_framebuffer_desc',['../structlv__framebuffer__desc.html',1,'']]],
+  ['lv_5ftfr_5fbitmap',['LV_TFR_BITMAP',['../live__view_8h.html#ab1882fd30d81a47aec34f522ee108e11',1,'LV_TFR_BITMAP():&#160;LVData.hpp'],['../libptp_09_09_8hpp.html#ab1882fd30d81a47aec34f522ee108e11',1,'LV_TFR_BITMAP():&#160;libptp++.hpp'],['../_l_v_data_8hpp.html#ab1882fd30d81a47aec34f522ee108e11',1,'LV_TFR_BITMAP():&#160;LVData.hpp']]],
+  ['lv_5ftfr_5fpalette',['LV_TFR_PALETTE',['../live__view_8h.html#a2f1fb12cc2bff5fbf5456121cddd3a3f',1,'LV_TFR_PALETTE():&#160;LVData.hpp'],['../libptp_09_09_8hpp.html#a2f1fb12cc2bff5fbf5456121cddd3a3f',1,'LV_TFR_PALETTE():&#160;libptp++.hpp'],['../_l_v_data_8hpp.html#a2f1fb12cc2bff5fbf5456121cddd3a3f',1,'LV_TFR_PALETTE():&#160;LVData.hpp']]],
+  ['lv_5ftfr_5fviewport',['LV_TFR_VIEWPORT',['../live__view_8h.html#ad4cdf56385e1b601324d500c0187c09f',1,'LV_TFR_VIEWPORT():&#160;LVData.hpp'],['../libptp_09_09_8hpp.html#ad4cdf56385e1b601324d500c0187c09f',1,'LV_TFR_VIEWPORT():&#160;libptp++.hpp'],['../_l_v_data_8hpp.html#ad4cdf56385e1b601324d500c0187c09f',1,'LV_TFR_VIEWPORT():&#160;LVData.hpp']]],
+  ['lvdata',['LVData',['../class_p_t_p_1_1_l_v_data.html#a1bad36d0e59b1003e2267ada245a6164',1,'PTP::LVData::LVData()'],['../class_p_t_p_1_1_l_v_data.html#a4f1396f9159f2b57e812ba2b72690b20',1,'PTP::LVData::LVData(uint8_t *payload, int payload_size)']]],
+  ['lvdata',['LVData',['../class_p_t_p_1_1_l_v_data.html',1,'PTP']]],
+  ['lvdata_2ecpp',['LVData.cpp',['../_l_v_data_8cpp.html',1,'']]],
+  ['lvdata_2ehpp',['LVData.hpp',['../_l_v_data_8hpp.html',1,'']]],
+  ['libptp_2b_2b',['libptp++',['../md__r_e_a_d_m_e.html',1,'']]]
+];
