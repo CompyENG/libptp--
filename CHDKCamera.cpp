@@ -92,13 +92,13 @@ uint32_t CHDKCamera::check_script_status(void) {
  * @return The first parameter in the PTP response (?)
  * @todo Finish blocking code, allow timeout input
  */
-uint32_t CHDKCamera::execute_lua(char * script, uint32_t * script_error, bool block) {
+uint32_t CHDKCamera::execute_lua(std::string script, uint32_t * script_error, bool block) {
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
     cmd.add_param(PTP::PTP_CHDK_ExecuteScript);
     cmd.add_param(PTP_CHDK_SL_LUA);
     
     PTPContainer data(PTPContainer::CONTAINER_TYPE_DATA, 0x9999);
-    data.set_payload((unsigned char *)script, strlen(script)+1);
+    data.set_payload((unsigned char *)script.data(), script.length());
     
     PTPContainer out_resp;
     this->ptp_transaction(&cmd, &data, false, &out_resp, NULL);
@@ -131,6 +131,8 @@ uint32_t CHDKCamera::execute_lua(char * script, uint32_t * script_error, bool bl
  *
  * @param[out] out_resp \c PTPContainer containing the response from the PTP transaction.
  * @param[out] out_data \c PTPContainer containing the data from the PTP transaction.
+ * 
+ * @todo Convert to a string and return actual message?
  */
 void CHDKCamera::read_script_message(PTPContainer * out_resp, PTPContainer * out_data) {
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
@@ -148,13 +150,13 @@ void CHDKCamera::read_script_message(PTPContainer * out_resp, PTPContainer * out
  * @param[in] script_id (optional) The ID of the script to send the message to.
  * @return The first parameter from the PTP response.
  */
-uint32_t CHDKCamera::write_script_message(char * message, uint32_t script_id) {
+uint32_t CHDKCamera::write_script_message(std::string message, uint32_t script_id) {
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
     cmd.add_param(PTP::PTP_CHDK_WriteScriptMsg);
     cmd.add_param(script_id);
     
     PTPContainer data(PTPContainer::CONTAINER_TYPE_DATA, 0x9999);
-    data.set_payload((unsigned char *)message, strlen(message));
+    data.set_payload((unsigned char *)message.data(), message.length());
     
     PTPContainer out_resp;
     this->ptp_transaction(&cmd, &data, false, &out_resp, NULL);
@@ -219,9 +221,9 @@ void CHDKCamera::get_live_view_data(LVData * data_out, bool liveview, bool overl
  * @param[in] timeout The maximum amount of time to let this function run for
  * @return All read script messages.
  */
-char * CHDKCamera::_wait_for_script_return(int timeout) {
+std::vector<std::string> CHDKCamera::_wait_for_script_return(int timeout) {
     int msg_count = 1;
-    char * msgs;
+    std::vector<std::string> msgs;
     struct timeval time;
     long t_start;
     long t_end;
@@ -270,12 +272,12 @@ char * CHDKCamera::_wait_for_script_return(int timeout) {
  * @return A pointer to the first byte of the resulting data
  * @see CHDKCamera::upload_file
  */
-uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, char * local_filename, char * remote_filename) {
+uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, std::string local_filename, std::string remote_filename) {
     uint32_t file_size;
     uint8_t * out;
     int name_length;
     
-    name_length = strlen(remote_filename);
+    name_length = remote_filename.length();
     
     std::ifstream stream_local(local_filename, std::ios::in | std::ios::binary | std::ios::ate);
     // Open file for reading, binary type of file, place pointer at end of file
@@ -287,7 +289,7 @@ uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, char * local_fi
     out = (uint8_t *)malloc(4 + name_length + file_size);   // Allocate memory for the packed file
     
     memcpy(out, &file_size, 4); // Copy four bytes of file size to output
-    memcpy(out+4, remote_filename, name_length); // Copy the file name in
+    memcpy(out+4, remote_filename.data(), name_length); // Copy the file name in
     stream_local.read((char *)(out+4+name_length), file_size);    // Copy the file contents in
     
     stream_local.close(); // Close the opened file stream
@@ -305,7 +307,7 @@ uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, char * local_fi
  * @param[in] timeout (optional) The timeout for each PTP call
  * @return True on success
  */
-bool CHDKCamera::upload_file(char * local_filename, char * remote_filename, int timeout) {
+bool CHDKCamera::upload_file(string local_filename, string remote_filename, int timeout) {
     uint8_t * packed;
     uint32_t packed_size;
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
