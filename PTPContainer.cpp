@@ -55,7 +55,7 @@ PTPContainer::PTPContainer(unsigned char * data) {
  */
 PTPContainer::~PTPContainer() {
     if(this->payload != NULL) {
-        free(this->payload);    // Be sure to free up this memory
+        delete[] this->payload;    // Be sure to free up this memory
         this->payload = NULL;
     }
 }
@@ -82,14 +82,14 @@ void PTPContainer::add_param(uint32_t param) {
     // Allocate new memory for the payload
     uint32_t old_length = (this->length)-(this->default_length);
     uint32_t new_length = this->length + sizeof(uint32_t);
-    unsigned char * new_payload = (unsigned char *)malloc(new_length);
+    unsigned char * new_payload = new unsigned char[new_length];
     
     // Copy old payload into new payload
-    memcpy(new_payload, this->payload, old_length);
+	std::copy(this->payload, this->payload+old_length, new_payload);
     // Copy new data into new payload
-    memcpy(&(new_payload[old_length]), &param, sizeof(uint32_t));
+	std::copy(&param, &param + sizeof(uint32_t), &(new_payload[old_length]));
     // Free up old payload memory
-    free(this->payload);
+	delete[] this->payload;
     // Change payload pointer to new payload
     this->payload = new_payload;
     // Update length
@@ -111,12 +111,12 @@ void PTPContainer::set_payload(unsigned char * payload, int payload_length) {
     // Allocate new memory to copy the payload into
     // This way, we can ensure that we always want to free() the memory
     uint32_t new_length = this->default_length + payload_length;
-    unsigned char * new_payload = (unsigned char *)malloc(payload_length);
+	unsigned char * new_payload = new unsigned char[payload_length];
     
     // Copy the payload over
-    memcpy(new_payload, payload, payload_length);
+	std::copy(payload, payload + payload_length, new_payload);
     // Free up the old payload
-    free(this->payload);
+	delete[] this->payload;
     // Change payload pointer to new payload
     this->payload = new_payload;
     // Update length
@@ -137,15 +137,15 @@ void PTPContainer::set_payload(unsigned char * payload, int payload_length) {
  * @see PTPContainer::get_length
  */
 unsigned char * PTPContainer::pack() {
-    unsigned char * packed = (unsigned char *)malloc(this->length);
+	unsigned char * packed = new unsigned char[this->length];
     
     uint32_t header_size = (sizeof this->length)+(sizeof this->type)+(sizeof this->code)+(sizeof this->transaction_id);
     
-    memcpy(&(packed[0]), &(this->length), sizeof this->length);  // Copy length
-    memcpy(&(packed[4]), &(this->type), sizeof this->type);    // Type
-    memcpy(&(packed[6]), &(this->code), sizeof this->code);    // Two bytes of code
-    memcpy(&(packed[8]), &(this->transaction_id), sizeof this->transaction_id);    // Four bytes of transaction id
-    memcpy(&(packed[12]), this->payload, this->length-header_size);    // The rest of payload
+	std::copy(&(this->length), &(this->length) + sizeof this->length, &packed[0]);	// Copy length
+	std::copy(&(this->type), &(this->type) + sizeof this->type, &packed[4]);		// Type
+	std::copy(&(this->code), &(this->code) + sizeof this->code, &packed[6]);		// Two bytes of code
+	std::copy(&(this->transaction_id), &(this->transaction_id) + sizeof this->transaction_id, &packed[8]);	// Four bytes of transaction ID
+	std::copy(this->payload, this->payload + this->length - header_size, &packed[12]);	// The rest of payload
     
     return packed;
 }
@@ -161,8 +161,8 @@ unsigned char * PTPContainer::get_payload(int * size_out) {
     
     *size_out = this->length - this->default_length;
     
-    out = (unsigned char *)malloc(*size_out);
-    memcpy(out, this->payload, *size_out);
+	out = new unsigned char[*size_out];
+	std::copy(this->payload, this->payload + *size_out, out);
     
     return out;
 }
@@ -193,21 +193,21 @@ uint32_t PTPContainer::get_length() {
  */
 void PTPContainer::unpack(unsigned char * data) {
     // Free up our current payload
-    free(this->payload);
+	delete[] this->payload;
     this->payload = NULL;
     
     // First four bytes are the length
-    memcpy(&this->length, data, 4);
+	std::copy(data, data + 4, &this->length);
     // Next, container type
-    memcpy(&this->type, &(data[4]), 2);
+	std::copy(data + 4, data + 6, &this->type);
     // Copy over code
-    memcpy(&this->code, &(data[6]), 2);
+	std::copy(data + 6, data + 8, &this->code);
     // And transaction ID...
-    memcpy(&this->transaction_id, &(data[8]), 4);
+	std::copy(data + 8, data + 12, &this->transaction_id);
     
     // Finally, copy over the payload
-    this->payload = (unsigned char *)malloc(this->length-12);
-    memcpy(this->payload, &(data[12]), this->length-12);
+	this->payload = new unsigned char[this->length - 12];
+	std::copy(data + 12, data + this->length, this->payload);
     
     // Since we copied all of this data, the data passed in can be free()d
 }
@@ -239,7 +239,7 @@ uint32_t PTPContainer::get_param_n(uint32_t n) {
         return 0;
     }
     
-    memcpy(&out, payload+first_byte, 4); // Copy parameter into out
+	std::copy(payload + first_byte, payload + first_byte + 4, &out); // Copy parameter into out
     
     return out; // Return parameter
 }
