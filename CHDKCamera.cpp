@@ -91,7 +91,7 @@ uint32_t CHDKCamera::check_script_status(void) {
  * @return The first parameter in the PTP response (?)
  * @todo Finish blocking code, allow timeout input
  */
-uint32_t CHDKCamera::execute_lua(std::string script, uint32_t * script_error, bool block) {
+uint32_t CHDKCamera::execute_lua(const std::string script, uint32_t * script_error, const bool block) {
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
     cmd.add_param(PTP::PTP_CHDK_ExecuteScript);
     cmd.add_param(PTP_CHDK_SL_LUA);
@@ -149,7 +149,7 @@ void CHDKCamera::read_script_message(PTPContainer * out_resp, PTPContainer * out
  * @param[in] script_id (optional) The ID of the script to send the message to.
  * @return The first parameter from the PTP response.
  */
-uint32_t CHDKCamera::write_script_message(std::string message, uint32_t script_id) {
+uint32_t CHDKCamera::write_script_message(const std::string message, const uint32_t script_id) {
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
     cmd.add_param(PTP::PTP_CHDK_WriteScriptMsg);
     cmd.add_param(script_id);
@@ -186,7 +186,7 @@ uint32_t CHDKCamera::write_script_message(std::string message, uint32_t script_i
  * @param[in]  palette  True to return the palette for the overlay
  * @see LVData, http://chdk.wikia.com/wiki/Frame_buffers
  */
-void CHDKCamera::get_live_view_data(LVData * data_out, bool liveview, bool overlay, bool palette) {
+void CHDKCamera::get_live_view_data(LVData * data_out, const bool liveview, const bool overlay, const bool palette) {
     uint32_t flags = 0;
     if(liveview) flags |= LV_TFR_VIEWPORT;
     if(overlay)  flags |= LV_TFR_BITMAP;
@@ -220,7 +220,7 @@ void CHDKCamera::get_live_view_data(LVData * data_out, bool liveview, bool overl
  * @param[in] timeout The maximum amount of time to let this function run for
  * @return All read script messages.
  */
-std::vector<std::string> CHDKCamera::_wait_for_script_return(int timeout) {
+std::vector<std::string> CHDKCamera::_wait_for_script_return(const int timeout) {
     int msg_count = 1;
     std::vector<std::string> msgs;
     struct timeval time;
@@ -271,7 +271,7 @@ std::vector<std::string> CHDKCamera::_wait_for_script_return(int timeout) {
  * @return A pointer to the first byte of the resulting data
  * @see CHDKCamera::upload_file
  */
-uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, std::string local_filename, std::string remote_filename) {
+uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, const std::string local_filename, const std::string remote_filename) {
     uint32_t file_size;
     uint8_t * out;
     int name_length;
@@ -307,7 +307,7 @@ uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, std::string loc
  * @param[in] timeout (optional) The timeout for each PTP call
  * @return True on success
  */
-bool CHDKCamera::upload_file(std::string local_filename, std::string remote_filename, int timeout) {
+bool CHDKCamera::upload_file(const std::string local_filename, const std::string remote_filename, const int timeout) {
     uint8_t * packed;
     uint32_t packed_size;
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
