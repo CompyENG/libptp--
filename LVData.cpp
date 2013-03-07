@@ -31,7 +31,7 @@ LVData::LVData() {
  * @param[in] payload_size The number of bytes in \a payload
  * @see LVData::read
  */
-LVData::LVData(uint8_t * payload, int payload_size) {
+LVData::LVData(const uint8_t * payload, const int payload_size) {
     this->init();
     this->read(payload, payload_size);
 }
@@ -68,7 +68,7 @@ void LVData::init() {
  *              enough to actually contain live view data.
  * @todo The casting here is pretty bad. How can I clean this up?
  */
-void LVData::read(uint8_t * payload, int payload_size) {
+void LVData::read(const uint8_t * payload, const int payload_size) {
     if(payload_size < (sizeof(lv_data_header) + sizeof(lv_framebuffer_desc))) {
         throw ERR_LVDATA_NOT_ENOUGH_DATA;
     }
@@ -98,7 +98,7 @@ void LVData::read(uint8_t * payload, int payload_size) {
  * @param[in] container The \c PTPContainer to read live view data from
  * @see LVData::read(uint8_t * payload, int payload_size)
  */
-void LVData::read(PTPContainer * container) {
+void LVData::read(const PTPContainer * container) {
     int payload_size;
     unsigned char * payload;
     
@@ -127,7 +127,7 @@ void LVData::read(PTPContainer * container) {
  * @return The address of the first byte of the resulting RGB image
  * @see http://chdk.wikia.com/wiki/Frame_buffers#Viewport, http://trac.assembla.com/chdk/browser/trunk/tools/yuvconvert.c
  */
-uint8_t * LVData::get_rgb(int * out_size, int * out_width, int * out_height, bool skip) {
+uint8_t * LVData::get_rgb(int * out_size, int * out_width, int * out_height, const bool skip) const {
     uint8_t * vp_data;
     int vp_size;
     vp_size = (this->fb_desc->buffer_width * this->fb_desc->visible_height * 12) / 8; // 12 bpp
@@ -172,7 +172,7 @@ uint8_t * LVData::get_rgb(int * out_size, int * out_width, int * out_height, boo
  * @param[in] v The integer to clip
  * @return A 8-bit unsigned integer between 0 and 255
  */
-uint8_t LVData::clip(int v) {
+uint8_t LVData::clip(const int v) {
     if (v<0) return 0;
     if (v>255) return 255;
     return v;
@@ -188,7 +188,7 @@ uint8_t LVData::clip(int v) {
  * @param[in] v The V value to convert
  * @see http://www.fourcc.org/fccyvrgb.php
  */
-void LVData::yuv_to_rgb(uint8_t **dest, uint8_t y, int8_t u, int8_t v) {
+void LVData::yuv_to_rgb(uint8_t **dest, const uint8_t y, const int8_t u, const int8_t v) {
     /*
     *((*dest)++) = LVData::clip(((y<<12) +          v*5743 + 2048)>>12);
     *((*dest)++) = LVData::clip(((y<<12) - u*1411 - v*2925 + 2048)>>12);
@@ -207,7 +207,7 @@ void LVData::yuv_to_rgb(uint8_t **dest, uint8_t y, int8_t u, int8_t v) {
  *
  * @return The version of this live view data
  */
-float LVData::get_lv_version() {
+float LVData::get_lv_version() const {
     if(this->vp_head == NULL) return -1;
     
     return this->vp_head->version_major + this->vp_head->version_minor / 10.0;
