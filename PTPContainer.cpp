@@ -44,7 +44,7 @@ PTPContainer::PTPContainer(uint16_t type, uint16_t op_code) {
  * @param[in] data A received PTP message
  * @see PTPContainer::unpack
  */
-PTPContainer::PTPContainer(unsigned char * data) {
+PTPContainer::PTPContainer(const unsigned char * data) {
     // This is essentially lv_framebuffer_desc .unpack() function, in the form of a constructor
     this->unpack(data);
 }
@@ -77,7 +77,7 @@ void PTPContainer::init() {
  *
  * @param[in] param The parameter to be added
  */
-void PTPContainer::add_param(uint32_t param) {
+void PTPContainer::add_param(const uint32_t param) {
     // Allocate new memory for the payload
     uint32_t old_length = (this->length)-(this->default_length);
     uint32_t new_length = this->length + sizeof(uint32_t);
@@ -106,7 +106,7 @@ void PTPContainer::add_param(uint32_t param) {
  * @param[in] payload The data to dump into the \c PTPContainer
  * @param[in] payload_length The amount of data to read from \a payload
  */
-void PTPContainer::set_payload(unsigned char * payload, int payload_length) {
+void PTPContainer::set_payload(const unsigned char * payload, const int payload_length) {
     // Allocate new memory to copy the payload into
     // This way, we can ensure that we always want to free() the memory
     uint32_t new_length = this->default_length + payload_length;
@@ -135,7 +135,7 @@ void PTPContainer::set_payload(unsigned char * payload, int payload_length) {
  *         in the container.
  * @see PTPContainer::get_length
  */
-unsigned char * PTPContainer::pack() {
+unsigned char * PTPContainer::pack() const {
 	unsigned char * packed = new unsigned char[this->length];
     
     uint32_t header_size = (sizeof this->length)+(sizeof this->type)+(sizeof this->code)+(sizeof this->transaction_id);
@@ -155,7 +155,7 @@ unsigned char * PTPContainer::pack() {
  * @param[out] size_out The size of the payload returned
  * @return A new copy of the payload contained in this \c PTPContainer
  */
-unsigned char * PTPContainer::get_payload(int * size_out) {
+unsigned char * PTPContainer::get_payload(int * size_out) const {
     unsigned char * out;
     
     *size_out = this->length - this->default_length;
@@ -171,7 +171,7 @@ unsigned char * PTPContainer::get_payload(int * size_out) {
  *
  * @return The total length of data contained in this \c PTPContainer
  */
-uint32_t PTPContainer::get_length() {
+uint32_t PTPContainer::get_length() const {
     return length;
 }
 
@@ -190,7 +190,7 @@ uint32_t PTPContainer::get_length() {
  *                 the new container data.  Must be at least 12 bytes
  *                 in length.
  */
-void PTPContainer::unpack(unsigned char * data) {
+void PTPContainer::unpack(const unsigned char * data) {
     // Free up our current payload
 	delete[] this->payload;
     this->payload = NULL;
@@ -219,7 +219,7 @@ void PTPContainer::unpack(unsigned char * data) {
  * @exception PTP::ERR_PTPCONTAINER_NO_PAYLOAD If this \c PTPContainer has no payload.
  * @exception PTP::ERR_PTPCONTAINER_INVALID_PARAM If this \c PTPContainer is too short to have a parameter \a n.
  */
-uint32_t PTPContainer::get_param_n(uint32_t n) {
+uint32_t PTPContainer::get_param_n(const uint32_t n) const {
     uint32_t out;
     uint32_t first_byte;
     

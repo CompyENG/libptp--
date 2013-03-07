@@ -21,16 +21,16 @@ namespace PTP {
             uint16_t code;
             uint32_t transaction_id;    // We'll end up setting this externally
             PTPContainer();
-            PTPContainer(uint16_t type, uint16_t op_code);
-            PTPContainer(unsigned char * data);
+            PTPContainer(const uint16_t type, const uint16_t op_code);
+            PTPContainer(const unsigned char * data);
             ~PTPContainer();
-            void add_param(uint32_t param);
-            void set_payload(unsigned char * payload, int payload_length);
-            unsigned char * pack();
-            unsigned char * get_payload(int * size_out);  // This might end up being useful...
-            uint32_t get_length();  // So we can get, but not set
-            void unpack(unsigned char * data);
-            uint32_t get_param_n(uint32_t n);
+            void add_param(const uint32_t param);
+            void set_payload(const unsigned char * payload, const int payload_length);
+            unsigned char * pack() const;
+            unsigned char * get_payload(int * size_out) const;  // This might end up being useful...
+            uint32_t get_length() const;  // So we can get, but not set
+            void unpack(const unsigned char * data);
+            uint32_t get_param_n(const uint32_t n) const;
     };
     
 }
