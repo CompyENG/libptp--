@@ -94,7 +94,7 @@ bool CameraBase::close() {
  * @exception PTP::ERR_NOT_OPEN if not connected to a camera.
  * @see CameraBase::_bulk_read
  */
-int CameraBase::_bulk_write(unsigned char * bytestr, int length, int timeout) {
+int CameraBase::_bulk_write(unsigned char * bytestr, const int length, const int timeout) {
     int transferred;
     
     if(this->handle == NULL) {
@@ -118,7 +118,7 @@ int CameraBase::_bulk_write(unsigned char * bytestr, int length, int timeout) {
  * @exception PTP::ERR_NOT_OPEN if not connected to a camera.
  * @see CameraBase::_bulk_read
  */
-int CameraBase::_bulk_read(unsigned char * data_out, int size, int * transferred, int timeout) {
+int CameraBase::_bulk_read(unsigned char * data_out, const int size, int * transferred, const int timeout) {
     if(this->handle == NULL) {
         throw PTP::ERR_NOT_OPEN;
         return 0;
@@ -136,7 +136,7 @@ int CameraBase::_bulk_read(unsigned char * data_out, int size, int * transferred
  * @return 0 on success, libusb error code otherwise.
  * @see CameraBase::_bulk_write, CameraBase::recv_ptp_message
  */
-int CameraBase::send_ptp_message(PTPContainer * cmd, int timeout) {
+int CameraBase::send_ptp_message(const PTPContainer * cmd, const int timeout) {
     unsigned char * packed = cmd->pack();
     int ret = this->_bulk_write(packed, cmd->get_length(), timeout);
     delete[] packed;
@@ -159,7 +159,7 @@ int CameraBase::send_ptp_message(PTPContainer * cmd, int timeout) {
  * @param[in]  timeout The maximum number of seconds to wait to read each time.
  * @see CameraBase::_bulk_read, CameraBase::send_ptp_message
  */
-void CameraBase::recv_ptp_message(PTPContainer *out, int timeout) {
+void CameraBase::recv_ptp_message(PTPContainer *out, const int timeout) {
     // Determine size we need to read
 	unsigned char * buffer = new unsigned char[512];
     int read = 0;
@@ -219,7 +219,7 @@ void CameraBase::recv_ptp_message(PTPContainer *out, int timeout) {
  *                       should attempt to communicate for.
  * @see CameraBase::send_ptp_message, CameraBase::recv_ptp_message
  */
-void CameraBase::ptp_transaction(PTPContainer *cmd, PTPContainer *data, bool receiving, PTPContainer * out_resp, PTPContainer * out_data, int timeout) {
+void CameraBase::ptp_transaction(PTPContainer *cmd, PTPContainer *data, const bool receiving, PTPContainer * out_resp, PTPContainer * out_data, const int timeout) {
     bool received_data = false;
     bool received_resp = false;
 
