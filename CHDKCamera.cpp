@@ -48,8 +48,8 @@ float CHDKCamera::get_chdk_version(void) {
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
     cmd.add_param(PTP::PTP_CHDK_Version);
     
-    PTPContainer out_resp;
-    this->ptp_transaction(&cmd, NULL, false, &out_resp, NULL);
+    PTPContainer out_resp, data, out_data;
+    this->ptp_transaction(cmd, data, false, out_resp, out_data);
     // param 1 is four bytes of major version
     // param 2 is four bytes of minor version
     float out;
@@ -76,8 +76,8 @@ uint32_t CHDKCamera::check_script_status(void) {
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
     cmd.add_param(PTP::PTP_CHDK_ScriptStatus);
     
-    PTPContainer out_resp;
-    this->ptp_transaction(&cmd, NULL, true, &out_resp, NULL);
+    PTPContainer out_resp, data, out_data;
+    this->ptp_transaction(cmd, data, true, out_resp, out_data);
     
     return out_resp.get_param_n(0);
 }
@@ -99,8 +99,8 @@ uint32_t CHDKCamera::execute_lua(const std::string script, uint32_t * script_err
     PTPContainer data(PTPContainer::CONTAINER_TYPE_DATA, 0x9999);
     data.set_payload((unsigned char *)script.data(), script.length());
     
-    PTPContainer out_resp;
-    this->ptp_transaction(&cmd, &data, false, &out_resp, NULL);
+    PTPContainer out_resp, out_data;
+    this->ptp_transaction(cmd, data, false, out_resp, out_data);
     
     uint32_t out = -1;
     unsigned char * payload;
@@ -133,12 +133,13 @@ uint32_t CHDKCamera::execute_lua(const std::string script, uint32_t * script_err
  * 
  * @todo Convert to a string and return actual message?
  */
-void CHDKCamera::read_script_message(PTPContainer * out_resp, PTPContainer * out_data) {
+void CHDKCamera::read_script_message(PTPContainer& out_resp, PTPContainer& out_data) {
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
     cmd.add_param(PTP::PTP_CHDK_ReadScriptMsg);
     cmd.add_param(PTP_CHDK_SL_LUA);
     
-    this->ptp_transaction(&cmd, NULL, true, out_resp, out_data);
+    PTPContainer data;
+    this->ptp_transaction(cmd, data, true, out_resp, out_data);
     // We'll just let the caller deal with the data
 }
 
@@ -157,8 +158,8 @@ uint32_t CHDKCamera::write_script_message(const std::string message, const uint3
     PTPContainer data(PTPContainer::CONTAINER_TYPE_DATA, 0x9999);
     data.set_payload((unsigned char *)message.data(), message.length());
     
-    PTPContainer out_resp;
-    this->ptp_transaction(&cmd, &data, false, &out_resp, NULL);
+    PTPContainer out_resp, out_data;
+    this->ptp_transaction(cmd, data, false, out_resp, out_data);
     
     uint32_t out = -1;
     unsigned char * payload;
@@ -186,7 +187,7 @@ uint32_t CHDKCamera::write_script_message(const std::string message, const uint3
  * @param[in]  palette  True to return the palette for the overlay
  * @see LVData, http://chdk.wikia.com/wiki/Frame_buffers
  */
-void CHDKCamera::get_live_view_data(LVData * data_out, const bool liveview, const bool overlay, const bool palette) {
+void CHDKCamera::get_live_view_data(LVData& data_out, const bool liveview, const bool overlay, const bool palette) {
     uint32_t flags = 0;
     if(liveview) flags |= LV_TFR_VIEWPORT;
     if(overlay)  flags |= LV_TFR_BITMAP;
@@ -196,13 +197,13 @@ void CHDKCamera::get_live_view_data(LVData * data_out, const bool liveview, cons
     cmd.add_param(PTP::PTP_CHDK_GetDisplayData);
     cmd.add_param(flags);
     
-    PTPContainer out_resp, out_data;
-    this->ptp_transaction(&cmd, NULL, true, &out_resp, &out_data);
+    PTPContainer data, out_resp, out_data;
+    this->ptp_transaction(cmd, data, true, out_resp, out_data);
     
     int payload_size;
     unsigned char * payload = out_data.get_payload(&payload_size);
     
-    data_out->read(payload, payload_size);    // The LVData class will completely handle the LV data
+    data_out.read(payload, payload_size);    // The LVData class will completely handle the LV data
     
     delete[] payload;
 }
@@ -312,14 +313,14 @@ bool CHDKCamera::upload_file(const std::string local_filename, const std::string
     uint32_t packed_size;
     PTPContainer cmd(PTPContainer::CONTAINER_TYPE_COMMAND, 0x9999);
     PTPContainer data(PTPContainer::CONTAINER_TYPE_DATA, 0x9999);
-    PTPContainer resp;
+    PTPContainer resp, out_data;
     
     packed = CHDKCamera::_pack_file_for_upload(&packed_size, local_filename, remote_filename);
     
     cmd.add_param(PTP::PTP_CHDK_UploadFile);
     data.set_payload((unsigned char *)packed, packed_size);
     
-    this->ptp_transaction(&cmd, &data, false, &resp, NULL);
+    this->ptp_transaction(cmd, data, false, resp, out_data);
     
     delete[] packed;
     

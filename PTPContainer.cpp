@@ -243,4 +243,13 @@ uint32_t PTPContainer::get_param_n(const uint32_t n) const {
     return out; // Return parameter
 }
 
+/**
+ * @brief Determines if this PTPContainer contains data
+ * 
+ * @return True if payload is a null pointer
+ */
+bool PTPContainer::is_empty() const {
+    return (this->payload == NULL);
+}
+
 } /* namespace PTP */

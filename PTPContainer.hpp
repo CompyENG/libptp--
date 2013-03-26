@@ -31,6 +31,7 @@ namespace PTP {
             uint32_t get_length() const;  // So we can get, but not set
             void unpack(const unsigned char * data);
             uint32_t get_param_n(const uint32_t n) const;
+            bool is_empty() const;
     };
     
 }

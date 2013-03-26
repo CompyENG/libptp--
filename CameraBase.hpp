@@ -29,9 +29,9 @@ namespace PTP {
             bool open(libusb_device *dev);
             bool close();
             bool reopen();
-            int send_ptp_message(const PTPContainer * cmd, const int timeout=0);
-            void recv_ptp_message(PTPContainer *out, const int timeout=0);
-            void ptp_transaction(PTPContainer *cmd, PTPContainer *data, const bool receiving, PTPContainer *out_resp, PTPContainer *out_data, const int timeout=0);
+            int send_ptp_message(const PTPContainer& cmd, const int timeout=0);
+            void recv_ptp_message(PTPContainer& out, const int timeout=0);
+            void ptp_transaction(PTPContainer& cmd, PTPContainer& data, const bool receiving, PTPContainer& out_resp, PTPContainer& out_data, const int timeout=0);
             static libusb_device * find_first_camera();
             int get_usb_error();
     };

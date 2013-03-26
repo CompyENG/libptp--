@@ -136,9 +136,9 @@ int CameraBase::_bulk_read(unsigned char * data_out, const int size, int * trans
  * @return 0 on success, libusb error code otherwise.
  * @see CameraBase::_bulk_write, CameraBase::recv_ptp_message
  */
-int CameraBase::send_ptp_message(const PTPContainer * cmd, const int timeout) {
-    unsigned char * packed = cmd->pack();
-    int ret = this->_bulk_write(packed, cmd->get_length(), timeout);
+int CameraBase::send_ptp_message(const PTPContainer& cmd, const int timeout) {
+    unsigned char * packed = cmd.pack();
+    int ret = this->_bulk_write(packed, cmd.get_length(), timeout);
     delete[] packed;
     
     return ret;
@@ -159,7 +159,7 @@ int CameraBase::send_ptp_message(const PTPContainer * cmd, const int timeout) {
  * @param[in]  timeout The maximum number of seconds to wait to read each time.
  * @see CameraBase::_bulk_read, CameraBase::send_ptp_message
  */
-void CameraBase::recv_ptp_message(PTPContainer *out, const int timeout) {
+void CameraBase::recv_ptp_message(PTPContainer& out, const int timeout) {
     // Determine size we need to read
 	unsigned char * buffer = new unsigned char[512];
     int read = 0;
@@ -183,9 +183,7 @@ void CameraBase::recv_ptp_message(PTPContainer *out, const int timeout) {
         this->_bulk_read(&out_buf[512], size-512, &read, timeout);
     }
     
-    if(out != NULL) {
-        out->unpack(out_buf);
-    }
+    out.unpack(out_buf);
     
     delete[] out_buf;
 }
@@ -219,36 +217,33 @@ void CameraBase::recv_ptp_message(PTPContainer *out, const int timeout) {
  *                       should attempt to communicate for.
  * @see CameraBase::send_ptp_message, CameraBase::recv_ptp_message
  */
-void CameraBase::ptp_transaction(PTPContainer *cmd, PTPContainer *data, const bool receiving, PTPContainer * out_resp, PTPContainer * out_data, const int timeout) {
+void CameraBase::ptp_transaction(PTPContainer& cmd, PTPContainer& data, const bool receiving, PTPContainer& out_resp, PTPContainer& out_data, const int timeout) {
     bool received_data = false;
     bool received_resp = false;
 
-    cmd->transaction_id = this->get_and_increment_transaction_id();
+    cmd.transaction_id = this->get_and_increment_transaction_id();
     this->send_ptp_message(cmd, timeout);
     
-    if(data != NULL) {
-        data->transaction_id = cmd->transaction_id;
+    if(!data.is_empty()) {
+        // Only send data if it doesn't have an empty payload
+        data.transaction_id = cmd.transaction_id;
         this->send_ptp_message(data, timeout);
     }
     
     if(receiving) {
         PTPContainer out;
-        this->recv_ptp_message(&out, timeout);
+        this->recv_ptp_message(out, timeout);
         if(out.type == PTPContainer::CONTAINER_TYPE_DATA) {
             received_data = true;
             // TODO: It occurs to me that pack() and unpack() might be inefficient. Let's try to find a better way to do this.
-            if(out_data != NULL) {
-                unsigned char * packed = out.pack();
-                out_data->unpack(packed);
-                delete[] packed;
-            }
+            unsigned char * packed = out.pack();
+            out_data.unpack(packed);
+            delete[] packed;
         } else if(out.type == PTPContainer::CONTAINER_TYPE_RESPONSE) {
             received_resp = true;
-            if(out_resp != NULL) {
-                unsigned char * packed = out.pack();
-                out_resp->unpack(packed);
-                delete[] packed;
-            }
+            unsigned char * packed = out.pack();
+            out_resp.unpack(packed);
+            delete[] packed;
         }
     }
     
