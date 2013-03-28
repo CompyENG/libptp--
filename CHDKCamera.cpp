@@ -156,7 +156,7 @@ uint32_t CHDKCamera::write_script_message(const std::string message, const uint3
     cmd.add_param(script_id);
     
     PTPContainer data(PTPContainer::CONTAINER_TYPE_DATA, 0x9999);
-    data.set_payload((unsigned char *)message.data(), message.length());
+    data.set_payload(message.data(), message.length());
     
     PTPContainer out_resp, out_data;
     this->ptp_transaction(cmd, data, false, out_resp, out_data);
@@ -318,7 +318,7 @@ bool CHDKCamera::upload_file(const std::string local_filename, const std::string
     packed = CHDKCamera::_pack_file_for_upload(&packed_size, local_filename, remote_filename);
     
     cmd.add_param(PTP::PTP_CHDK_UploadFile);
-    data.set_payload((unsigned char *)packed, packed_size);
+    data.set_payload(packed, packed_size);
     
     this->ptp_transaction(cmd, data, false, resp, out_data);
     
