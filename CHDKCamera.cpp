@@ -34,7 +34,7 @@ CHDKCamera::CHDKCamera() : CameraBase() {
  * @param[in] dev The \c libusb_device to connect to.
  * @see CameraBase::CameraBase(libusb_device * dev)
  */
-CHDKCamera::CHDKCamera(libusb_device * dev) : CameraBase(dev) {
+CHDKCamera::CHDKCamera(IPTPComm * protocol) : CameraBase(protocol) {
     ;
 }
 

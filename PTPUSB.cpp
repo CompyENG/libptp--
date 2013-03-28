@@ -14,11 +14,7 @@ PTPUSB::PTPUSB(libusb_device * dev) {
 }
 
 PTPUSB::~PTPUSB() {
-    if(this->handle != NULL) {
-        libusb_release_interface(this->handle, this->intf->bInterfaceNumber);
-        libusb_close(this->handle);
-        this->handle = NULL;
-    }
+    this->close();
 }
 
 void PTPUSB::init() {
@@ -40,6 +36,14 @@ void PTPUSB::connect_to_first() {
     this->open(dev);
 }
 
+/**
+ * @brief Find the first camera which is connected.
+ *
+ * Asks libusb for all the devices connected to the computer, and returns
+ * the first PTP device it can find.  
+ * 
+ * @return A pointer to a \c libusb_device which represents the camera found, or NULL if none found.
+ */
 libusb_device * PTPUSB::find_first_camera() {
     // discover devices
     libusb_device **list;
@@ -90,7 +94,7 @@ libusb_device * PTPUSB::find_first_camera() {
  * @brief Opens the camera specified by \a dev.
  *
  * @param[in] dev The \c libusb_device which specifies which device to connect to.
- * @exception PTP::ERR_ALREADY_OPEN if this \c CameraBase already has an open device.
+ * @exception PTP::ERR_ALREADY_OPEN if this \c PTPUSB already has an open device.
  * @exception PTP::ERR_CANNOT_CONNECT if we cannot connect to the camera specified.
  * @return true if we successfully connect, false otherwise.
  */
@@ -148,6 +152,17 @@ bool PTPUSB::open(libusb_device * dev) {
     return true;
 }
 
+/**
+ * Perform a \c libusb_bulk_transfer to the "out" endpoint of the connected camera.
+ *
+ * @warning Make sure \a bytestr is at least \a length bytes in length.
+ * @param[in] bytestr Bytes to write through USB.
+ * @param[in] length  Number of bytes to read from \a bytestr.
+ * @param[in] timeout The maximum number of seconds to attempt to send for.
+ * @return 0 on success, libusb error code otherwise.
+ * @exception PTP::ERR_NOT_OPEN if not connected to a camera.
+ * @see PTPUSB::_bulk_read
+ */
 bool PTPUSB::_bulk_write(const unsigned char * bytestr, const int length, const int timeout) {
     int transferred;
     
@@ -167,6 +182,18 @@ bool PTPUSB::_bulk_write(const unsigned char * bytestr, const int length, const 
     return ret;
 }
 
+/**
+ * Perform a \c libusb_bulk_transfer to the "in" endpoint of the connected camera.
+ *
+ * @warning Make sure \a data_out has enough memory allocated to read at least \a size bytes.
+ * @param[out] data_out    The data read from the camera.
+ * @param[in]  size        The number of bytes to attempt to read.
+ * @param[out] transferred The number of bytes actually read.
+ * @param[in]  timeout     The maximum number of seconds to attempt to read for.
+ * @return 0 on success, libusb error code otherwise.
+ * @exception PTP::ERR_NOT_OPEN if not connected to a camera.
+ * @see PTPUSB::_bulk_read
+ */
 bool PTPUSB::_bulk_read(unsigned char * data_out, const int size, int * transferred, const int timeout) {
     if(this->handle == NULL) {
         throw PTP::ERR_NOT_OPEN;
@@ -175,6 +202,26 @@ bool PTPUSB::_bulk_read(unsigned char * data_out, const int size, int * transfer
     
     // TODO: Return the amount of data transferred? We might get less than we ask for, which means we need to tell the calling function?
     return libusb_bulk_transfer(this->handle, this->ep_in, data_out, size, transferred, timeout) == 0;
+}
+
+/**
+ * @brief Returns true if we can _bulk_read and _bulk_write
+ */
+bool PTPUSB::is_open() {
+    // This should work... and be fairly straightforward!
+    return this->handle != NULL;
+}
+
+/**
+ * Closes the opened USB object.
+ * @todo Check for errors in the calls
+ */
+void PTPUSB::close() {
+    if(this->handle != NULL) {
+        libusb_release_interface(this->handle, this->intf->bInterfaceNumber);
+        libusb_close(this->handle);
+        this->handle = NULL;
+    }
 }
 
 }

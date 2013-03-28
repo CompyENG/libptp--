@@ -9,12 +9,13 @@ namespace PTP {
     
     class PTPContainer;
     class LVData;
+    class IPTPComm;
 
     class CHDKCamera : public CameraBase {
         static uint8_t * _pack_file_for_upload(uint32_t * out_size, const std::string local_filename, const std::string remote_filename);
         public:
             CHDKCamera();
-            CHDKCamera(libusb_device *dev);
+            CHDKCamera(IPTPComm * protocol);
             float get_chdk_version(void);
             uint32_t check_script_status(void);
             uint32_t execute_lua(const std::string script, uint32_t * script_error, const bool block=false);

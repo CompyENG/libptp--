@@ -28,6 +28,12 @@ namespace PTP {
         public:
             virtual ~IPTPComm() { }
             /**
+             * @brief Check that we have open communication
+             * 
+             * @return True if we can _bulk_write and _bulk_read, false otherwise
+             */
+            virtual bool is_open() = 0;
+            /**
              * @brief Write data to the protocol
              * 
              * _bulk_write handles writing data to the protocol.  The first 

@@ -25,6 +25,8 @@ namespace PTP {
             void connect_to_serial_no(std::string serial);
             virtual bool _bulk_write(const unsigned char * bytestr, const int length, const int timeout);
             virtual bool _bulk_read(unsigned char * data_out, const int size, int * transferred, const int timeout);
+            virtual bool is_open();
+            void close();
     };
     
 }

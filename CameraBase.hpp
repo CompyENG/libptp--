@@ -6,34 +6,26 @@
 namespace PTP {
     
     class PTPContainer;
+    class IPTPComm;
 
     class CameraBase {
         private:
-            libusb_device_handle *handle;
-            int usb_error;
-            struct libusb_interface_descriptor *intf;
-            uint8_t ep_in;
-            uint8_t ep_out;
+            IPTPComm * protocol;
             uint32_t _transaction_id;
             void init();
             
         protected:
-            int _bulk_write(unsigned char * bytestr, const int length, const int timeout=0);
-            int _bulk_read(unsigned char * data_out, const int size, int * transferred, const int timeout=0);
             int get_and_increment_transaction_id(); // What a beautiful name for a function
             
         public:
             CameraBase();
-            CameraBase(libusb_device *dev);
+            CameraBase(IPTPComm * protocol);
             ~CameraBase();
-            bool open(libusb_device *dev);
-            bool close();
+            void set_protocol(IPTPComm * protocol);
             bool reopen();
             int send_ptp_message(const PTPContainer& cmd, const int timeout=0);
             void recv_ptp_message(PTPContainer& out, const int timeout=0);
             void ptp_transaction(PTPContainer& cmd, PTPContainer& data, const bool receiving, PTPContainer& out_resp, PTPContainer& out_data, const int timeout=0);
-            static libusb_device * find_first_camera();
-            int get_usb_error();
     };
 }
 
