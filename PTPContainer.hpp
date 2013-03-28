@@ -25,7 +25,7 @@ namespace PTP {
             PTPContainer(const unsigned char * data);
             ~PTPContainer();
             void add_param(const uint32_t param);
-            void set_payload(const unsigned char * payload, const int payload_length);
+            void set_payload(const void * payload, const int payload_length);
             unsigned char * pack() const;
             unsigned char * get_payload(int * size_out) const;  // This might end up being useful...
             uint32_t get_length() const;  // So we can get, but not set

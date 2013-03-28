@@ -106,7 +106,7 @@ void PTPContainer::add_param(const uint32_t param) {
  * @param[in] payload The data to dump into the \c PTPContainer
  * @param[in] payload_length The amount of data to read from \a payload
  */
-void PTPContainer::set_payload(const unsigned char * payload, const int payload_length) {
+void PTPContainer::set_payload(const void * payload, int payload_length) {
     // Allocate new memory to copy the payload into
     // This way, we can ensure that we always want to free() the memory
     uint32_t new_length = this->default_length + payload_length;
