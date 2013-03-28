@@ -156,7 +156,7 @@ uint32_t CHDKCamera::write_script_message(const std::string message, const uint3
     cmd.add_param(script_id);
     
     PTPContainer data(PTPContainer::CONTAINER_TYPE_DATA, 0x9999);
-    data.set_payload(message.c_str(), message.length() + 1);
+    data.set_payload(message.c_str(), message.length());
     
     PTPContainer out_resp, out_data;
     this->ptp_transaction(cmd, data, false, out_resp, out_data);
