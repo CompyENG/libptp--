@@ -206,7 +206,7 @@ void PTPContainer::unpack(const unsigned char * data) {
     
     // Finally, copy over the payload
 	this->payload = new unsigned char[this->length - 12];
-    std::memcpy(this->payload, data + 12, this->length);
+    std::memcpy(this->payload, data + 12, this->length - 12);
     
     // Since we copied all of this data, the data passed in can be free()d
 }
