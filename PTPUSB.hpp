@@ -16,6 +16,7 @@ namespace PTP {
             bool open(libusb_device * dev);
             static libusb_device * find_first_camera();
             void init();
+            static int inst_count;
             
         public:
             PTPUSB();

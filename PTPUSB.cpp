@@ -4,6 +4,8 @@
 
 namespace PTP {
     
+int PTPUSB::inst_count = 0;
+    
 PTPUSB::PTPUSB() {
     this->init();
 }
@@ -15,9 +17,20 @@ PTPUSB::PTPUSB(libusb_device * dev) {
 
 PTPUSB::~PTPUSB() {
     this->close();
+    
+    PTPUSB::inst_count--;
+    if(PTPUSB::inst_count == 0) {
+        // Be sure to exit libusb
+        libusb_exit(NULL);
+    }
 }
 
 void PTPUSB::init() {
+    if(PTPUSB::inst_count == 0) {
+        libusb_init(NULL);  // Make sure to initialize libusb first!
+    }
+    
+    PTPUSB::inst_count++;
     this->handle = NULL;
     this->usb_error = 0;
     this->intf = NULL;
