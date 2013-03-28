@@ -97,7 +97,7 @@ uint32_t CHDKCamera::execute_lua(const std::string script, uint32_t * script_err
     cmd.add_param(PTP_CHDK_SL_LUA);
     
     PTPContainer data(PTPContainer::CONTAINER_TYPE_DATA, 0x9999);
-    data.set_payload((unsigned char *)script.data(), script.length());
+    data.set_payload(script.c_str(), script.length() + 1);
     
     PTPContainer out_resp, out_data;
     this->ptp_transaction(cmd, data, false, out_resp, out_data);
