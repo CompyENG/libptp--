@@ -9,7 +9,6 @@
  * can just talk to the camera using the correct protocol.
  */
  
-#include <cstdlib>
 #include <cstring>
 #include <stdint.h>
 
@@ -95,7 +94,7 @@ bool CameraBase::close() {
  * @exception PTP::ERR_NOT_OPEN if not connected to a camera.
  * @see CameraBase::_bulk_read
  */
-int CameraBase::_bulk_write(unsigned char * bytestr, int length, int timeout) {
+int CameraBase::_bulk_write(unsigned char * bytestr, const int length, const int timeout) {
     int transferred;
     
     if(this->handle == NULL) {
@@ -119,7 +118,7 @@ int CameraBase::_bulk_write(unsigned char * bytestr, int length, int timeout) {
  * @exception PTP::ERR_NOT_OPEN if not connected to a camera.
  * @see CameraBase::_bulk_read
  */
-int CameraBase::_bulk_read(unsigned char * data_out, int size, int * transferred, int timeout) {
+int CameraBase::_bulk_read(unsigned char * data_out, const int size, int * transferred, const int timeout) {
     if(this->handle == NULL) {
         throw PTP::ERR_NOT_OPEN;
         return 0;
@@ -137,10 +136,10 @@ int CameraBase::_bulk_read(unsigned char * data_out, int size, int * transferred
  * @return 0 on success, libusb error code otherwise.
  * @see CameraBase::_bulk_write, CameraBase::recv_ptp_message
  */
-int CameraBase::send_ptp_message(PTPContainer * cmd, int timeout) {
-    unsigned char * packed = cmd->pack();
-    int ret = this->_bulk_write(packed, cmd->get_length(), timeout);
-    free(packed);
+int CameraBase::send_ptp_message(const PTPContainer& cmd, const int timeout) {
+    unsigned char * packed = cmd.pack();
+    int ret = this->_bulk_write(packed, cmd.get_length(), timeout);
+    delete[] packed;
     
     return ret;
 }
@@ -160,11 +159,11 @@ int CameraBase::send_ptp_message(PTPContainer * cmd, int timeout) {
  * @param[in]  timeout The maximum number of seconds to wait to read each time.
  * @see CameraBase::_bulk_read, CameraBase::send_ptp_message
  */
-void CameraBase::recv_ptp_message(PTPContainer *out, int timeout) {
+void CameraBase::recv_ptp_message(PTPContainer& out, const int timeout) {
     // Determine size we need to read
-    unsigned char buffer[512];
+	unsigned char * buffer = new unsigned char[512];
     int read = 0;
-    this->_bulk_read((unsigned char *)buffer, 512, &read, timeout); // TODO: Error checking on response
+    this->_bulk_read(buffer, 512, &read, timeout); // TODO: Error checking on response
     uint32_t size = 0;
     if(read < 4) {
         // If we actually read less than four bytes, we can't copy four bytes out of the buffer.
@@ -172,23 +171,22 @@ void CameraBase::recv_ptp_message(PTPContainer *out, int timeout) {
         throw PTP::ERR_CANNOT_RECV;
         return;
     }
-    memcpy(&size, buffer, 4);   // The first four bytes of the buffer are the size
+    std::memcpy(&size, buffer, 4);      // The first four bytes of the buffer are the size
     
     // Copy our first part into the output buffer -- so we can reuse buffer
-    unsigned char * out_buf = (unsigned char *)malloc(size);
+    unsigned char * out_buf = new unsigned char[size];
     if(size < 512) {
-        memcpy(out_buf, buffer, size);
+        std::memcpy(out_buf, buffer, size);
     } else {
-        memcpy(out_buf, buffer, 512);
+        std::memcpy(out_buf, buffer, 512);
         // We've already read 512 bytes... read the rest!
         this->_bulk_read(&out_buf[512], size-512, &read, timeout);
     }
     
-    if(out != NULL) {
-        out->unpack(out_buf);
-    }
+    out.unpack(out_buf);
     
-    free(out_buf);
+    delete[] out_buf;
+    delete[] buffer;
 }
 
 /**
@@ -220,36 +218,33 @@ void CameraBase::recv_ptp_message(PTPContainer *out, int timeout) {
  *                       should attempt to communicate for.
  * @see CameraBase::send_ptp_message, CameraBase::recv_ptp_message
  */
-void CameraBase::ptp_transaction(PTPContainer *cmd, PTPContainer *data, bool receiving, PTPContainer * out_resp, PTPContainer * out_data, int timeout) {
+void CameraBase::ptp_transaction(PTPContainer& cmd, PTPContainer& data, const bool receiving, PTPContainer& out_resp, PTPContainer& out_data, const int timeout) {
     bool received_data = false;
     bool received_resp = false;
 
-    cmd->transaction_id = this->get_and_increment_transaction_id();
+    cmd.transaction_id = this->get_and_increment_transaction_id();
     this->send_ptp_message(cmd, timeout);
     
-    if(data != NULL) {
-        data->transaction_id = cmd->transaction_id;
+    if(!data.is_empty()) {
+        // Only send data if it doesn't have an empty payload
+        data.transaction_id = cmd.transaction_id;
         this->send_ptp_message(data, timeout);
     }
     
     if(receiving) {
         PTPContainer out;
-        this->recv_ptp_message(&out, timeout);
+        this->recv_ptp_message(out, timeout);
         if(out.type == PTPContainer::CONTAINER_TYPE_DATA) {
             received_data = true;
             // TODO: It occurs to me that pack() and unpack() might be inefficient. Let's try to find a better way to do this.
-            if(out_data != NULL) {
-                unsigned char * packed = out.pack();
-                out_data->unpack(packed);
-                free(packed);
-            }
+            unsigned char * packed = out.pack();
+            out_data.unpack(packed);
+            delete[] packed;
         } else if(out.type == PTPContainer::CONTAINER_TYPE_RESPONSE) {
             received_resp = true;
-            if(out_resp != NULL) {
-                unsigned char * packed = out.pack();
-                out_resp->unpack(packed);
-                free(packed);
-            }
+            unsigned char * packed = out.pack();
+            out_resp.unpack(packed);
+            delete[] packed;
         }
     }
     
