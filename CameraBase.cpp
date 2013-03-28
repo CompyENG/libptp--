@@ -186,6 +186,7 @@ void CameraBase::recv_ptp_message(PTPContainer& out, const int timeout) {
     out.unpack(out_buf);
     
     delete[] out_buf;
+    delete[] buffer;
 }
 
 /**
