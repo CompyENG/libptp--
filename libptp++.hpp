@@ -96,6 +96,8 @@ libusb_exit(NULL);
 #include "LVData.hpp"
 #include "PTPCamera.hpp"
 #include "PTPContainer.hpp"
+#include "IPTPComm.hpp"
+#include "PTPUSB.hpp"
 
 namespace PTP {
 
