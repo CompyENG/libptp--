@@ -12,17 +12,17 @@ namespace PTP {
             PTP::lv_framebuffer_desc * fb_desc;
             uint8_t * payload;
             void init();
-            static uint8_t clip(int v);
-            static void yuv_to_rgb(uint8_t **dest, uint8_t y, int8_t u, int8_t v);
+            static uint8_t clip(const int v);
+            static void yuv_to_rgb(uint8_t **dest, const uint8_t y, const int8_t u, const int8_t v);
             
         public:
             LVData();
-            LVData(uint8_t * payload, int payload_size);
+            LVData(const uint8_t * payload, const int payload_size);
             ~LVData();
-            void read(uint8_t * payload, int payload_size);
-            void read(PTPContainer * container);    // Could this make life easier?
-            uint8_t * get_rgb(int * out_size, int * out_width, int * out_height, bool skip=false);    // Some cameras don't require skip
-            float get_lv_version();
+            void read(const uint8_t * payload, const int payload_size);
+            void read(const PTPContainer& container);    // Could this make life easier?
+            uint8_t * get_rgb(int * out_size, int * out_width, int * out_height, const bool skip=false) const;    // Some cameras don't require skip
+            float get_lv_version() const;
     };
     
 }
