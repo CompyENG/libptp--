@@ -1,4 +1,6 @@
 #include <string>
+#include <libusb-1.0/libusb.h>
+
 #include "PTPUSB.hpp"
 #include "libptp++.hpp"
 
