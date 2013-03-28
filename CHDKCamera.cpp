@@ -58,8 +58,8 @@ float CHDKCamera::get_chdk_version(void) {
     uint32_t major = 0, minor = 0;
     payload = out_resp.get_payload(&payload_size);
     if(payload_size >= 8) { // Need at least 8 bytes in the payload
-		std::copy(payload, payload + 4, &major);        // Copy first four bytes into major
-		std::copy(payload + 4, payload + 8, &minor);    // Copy next four bytes into minor
+        std::memcpy(&major, payload, 4);            // Copy first four bytes into major
+        std::memcpy(&minor, payload + 4, 4);        // Copy next four bytes into minor
     }
     delete[] payload;
     
@@ -112,9 +112,9 @@ uint32_t CHDKCamera::execute_lua(const std::string script, uint32_t * script_err
         this->_wait_for_script_return(5);
     } else {
         if(payload_size >= 8) { // Need at least 8 bytes in the payload
-			std::copy(payload, payload + 4, &out);
+            std::memcpy(&out, payload, 4);
             if(script_error != NULL) {
-				std::copy(payload + 4, payload + 8, script_error);
+                std::memcpy(script_error, payload + 4, 4);
             }
         }
     }
@@ -167,7 +167,7 @@ uint32_t CHDKCamera::write_script_message(const std::string message, const uint3
     payload = out_resp.get_payload(&payload_size);
     
     if(payload_size >= 4) { // Need four bytes of uint32_t response
-		std::copy(payload, payload + 4, &out);
+        std::memcpy(&out, payload, 4);
     }
     delete[] payload;
     
@@ -288,9 +288,9 @@ uint8_t * CHDKCamera::_pack_file_for_upload(uint32_t * out_size, const std::stri
     
 	out = new uint8_t[4 + name_length + file_size];   // Allocate memory for the packed file
     
-	std::copy(&file_size, &file_size + 4, out); // Copy four bytes of file size to output
+    std::memcpy(out, &file_size, 4);        // Copy four bytes of file size to output
 	const char * r_filename = remote_filename.data();
-	std::copy(r_filename, r_filename + name_length, out + 4); // Copy the file name in
+    std::memcpy(out + 4, r_filename, name_length);      // Copy the file name in
     stream_local.read((char *)(out+4+name_length), file_size);    // Copy the file contents in
     
     stream_local.close(); // Close the opened file stream

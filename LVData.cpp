@@ -80,11 +80,11 @@ void LVData::read(const uint8_t * payload, const int payload_size) {
     
 	this->payload = new uint8_t[payload_size];
     
-	std::copy(payload, payload + payload_size, this->payload);	// Copy the payload we're reading in into OUR payload
+    std::memcpy(this->payload, payload, payload_size);	// Copy the payload we're reading in into OUR payload
     
     // Parse the payload data into vp_head and fb_desc
-	std::copy((lv_data_header *)this->payload, (lv_data_header *)(this->payload + sizeof(lv_data_header)), this->vp_head);
-	std::copy((lv_framebuffer_desc *)(this->payload + this->vp_head->vp_desc_start), (lv_framebuffer_desc *)(this->payload + this->vp_head->vp_desc_start + sizeof(lv_framebuffer_desc)), this->fb_desc);
+    std::memcpy(this->vp_head, this->payload, sizeof(lv_data_header));
+    std::memcpy(this->fb_desc, this->payload + this->vp_head->vp_desc_start, sizeof(lv_framebuffer_desc));
 }
 
 /**
@@ -131,8 +131,8 @@ uint8_t * LVData::get_rgb(int * out_size, int * out_width, int * out_height, con
     uint8_t * vp_data;
     int vp_size;
     vp_size = (this->fb_desc->buffer_width * this->fb_desc->visible_height * 12) / 8; // 12 bpp
-	vp_data = new uint8_t[vp_size];    // Allocate memory for YUV data
-	std::copy(this->payload + this->fb_desc->data_start, this->payload + this->fb_desc->data_start + vp_size, vp_data);    // Copy YUV data into vp_data
+	vp_data = new uint8_t[vp_size];    // Allocate memory for YUV data 
+    std::memcpy(vp_data, this->payload + this->fb_desc->data_start, vp_size);   // Copy YUV data into vp_data
     
     int par = skip?2:1; // If skip, par = 2 ; else, par = 1
     

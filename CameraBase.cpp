@@ -171,14 +171,14 @@ void CameraBase::recv_ptp_message(PTPContainer& out, const int timeout) {
         throw PTP::ERR_CANNOT_RECV;
         return;
     }
-	std::copy(buffer, buffer + 4, &size);   // The first four bytes of the buffer are the size
+    std::memcpy(&size, buffer, 4);      // The first four bytes of the buffer are the size
     
     // Copy our first part into the output buffer -- so we can reuse buffer
     unsigned char * out_buf = new unsigned char[size];
     if(size < 512) {
-		std::copy(buffer, buffer + size, out_buf);
+        std::memcpy(out_buf, buffer, size);
     } else {
-		std::copy(buffer, buffer + 512, out_buf);
+        std::memcpy(out_buff, buffer, 512);
         // We've already read 512 bytes... read the rest!
         this->_bulk_read(&out_buf[512], size-512, &read, timeout);
     }
