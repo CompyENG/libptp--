@@ -8,7 +8,7 @@
  * LVData object, which can be manipulated to retrieve data to display an image.
  */
  
-#include <algorithm>
+#include <cstring>
 #include <stdint.h>
 
 #include "LVData.hpp"

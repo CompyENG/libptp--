@@ -8,7 +8,7 @@
  * functions for extacting this data in a few different ways.
  */
  
-#include <algorithm>
+#include <cstring>
 #include <stdint.h>
  
 #include "PTPContainer.hpp"

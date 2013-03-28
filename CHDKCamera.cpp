@@ -8,7 +8,7 @@
  * functions that make communicating with CHDK simple.
  */
  
-#include <algorithm>
+#include <cstring>
 #include <fstream>
 // Needed for usleep() in script wait
 #include <unistd.h>

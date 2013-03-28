@@ -9,7 +9,7 @@
  * can just talk to the camera using the correct protocol.
  */
  
-#include <algorithm>
+#include <cstring>
 #include <stdint.h>
 
 #include "libptp++.hpp"
@@ -178,7 +178,7 @@ void CameraBase::recv_ptp_message(PTPContainer& out, const int timeout) {
     if(size < 512) {
         std::memcpy(out_buf, buffer, size);
     } else {
-        std::memcpy(out_buff, buffer, 512);
+        std::memcpy(out_buf, buffer, 512);
         // We've already read 512 bytes... read the rest!
         this->_bulk_read(&out_buf[512], size-512, &read, timeout);
     }
